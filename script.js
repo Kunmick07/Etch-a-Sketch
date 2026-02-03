@@ -6,6 +6,7 @@ const eraserBtn = document.getElementById("eraserBtn");
 
 let currentMode = "black"; // black | random | eraser
 
+// Create the grid
 function createGrid(size) {
   container.innerHTML = "";
 
@@ -26,24 +27,51 @@ function createGrid(size) {
   }
 }
 
+// Apply color based on current mode
 function applyColor(square) {
   if (currentMode === "black") {
     square.style.backgroundColor = "black";
-  }
-
-  if (currentMode === "random") {
-    const r = Math.floor(Math.random() * 256);
-    const g = Math.floor(Math.random() * 256);
-    const b = Math.floor(Math.random() * 256);
-    square.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+    return;
   }
 
   if (currentMode === "eraser") {
     square.style.backgroundColor = "white";
+    square.dataset.darkness = "";
+    return;
+  }
+
+  // RANDOM COLOR + PROGRESSIVE DARKENING
+  if (currentMode === "random") {
+
+    // First interaction → assign random color
+    if (!square.dataset.darkness) {
+      square.dataset.darkness = 0;
+
+      const r = Math.floor(Math.random() * 256);
+      const g = Math.floor(Math.random() * 256);
+      const b = Math.floor(Math.random() * 256);
+
+      square.dataset.r = r;
+      square.dataset.g = g;
+      square.dataset.b = b;
+    }
+
+    let darkness = Number(square.dataset.darkness);
+
+    if (darkness < 100) {
+      darkness += 10;
+      square.dataset.darkness = darkness;
+    }
+
+    const r = square.dataset.r * (1 - darkness / 100);
+    const g = square.dataset.g * (1 - darkness / 100);
+    const b = square.dataset.b * (1 - darkness / 100);
+
+    square.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
   }
 }
 
-// button event listeners
+// Button events
 blackBtn.addEventListener("click", () => {
   currentMode = "black";
 });
@@ -63,10 +91,11 @@ resizeBtn.addEventListener("click", () => {
   if (size > 0 && size <= 100) {
     createGrid(size);
   } else {
-    alert("Enter a number between 1 and 100");
+    alert("Please enter a number between 1 and 100");
   }
 });
 
-// default grid
+// Default grid
 createGrid(16);
+
 
